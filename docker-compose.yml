@@ -1,62 +1,9 @@
 services:
-    gradio-service:
-        build:
-            context: ./gradio
-            dockerfile: Dockerfile
-        ports:
-            - 12000:12000
-        networks:
-            - chat-service-network
-
-    chat-service:
-        build:
-            context: ./chat
-            dockerfile: Dockerfile
-        ports:
-            - 12110:12110
-        networks:
-            - chat-service-network
-    
-    embedding-service:
-        build:
-            context: ./embedding/vllm
-            dockerfile: Dockerfile.arm #use Dockerfile.cpu for window
-        ports:
-            - 12111:12111
-        # shm_size: 
-        #     "4g"
-        command: 
-            ["--model", "BAAI/bge-base-en-v1.5", "--port", "12111", "--host", "0.0.0.0"]
-        networks:
-            - chat-service-network
-
-    line-service:
-        build:
-            context: ./line
-            dockerfile: Dockerfile
-        ports:
-            - 12200:12200
-        environment:
-            - CHANNEL_ACCESS_TOKEN=YOUR_CHANNEL_ACCESS_TOKEN
-            - CHANNEL_SECRET=YOUR_CHANNEL_SECRET
-            - CHAT_LEGAL_URL=YOUR_CHAT_LEGAL_URL
-        networks:
-            - chat-service-network
-        depends_on:
-            - chat-service
-
-    # postgres:
-    #     image: pgvector/pgvector:pg17
-    #     restart: always
-    #     ports:
-    #         - 12300:5432
-    #     volumes:
-    #         - ./data/postgres:/var/lib/postgresql/data
-    #     environment:
-    #         - POSTGRES_DB=database
-    #         - POSTGRES_USER=user
-    #         - POSTGRES_PASSWORD=pass1234
-
-networks:
-    chat-service-network:
-        driver: bridge
+  embedding-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile.cpu
+    ports:
+      - "12111:12111"
+    shm_size: "4g"
+    command: ["--model", "BAAI/bge-base-en-v1.5", "--port", "12111", "--host", "0.0.0.0"]
